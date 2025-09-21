@@ -211,3 +211,49 @@ def delete_pages(request):
                 return response
 
     return render(request, "delete.html")
+
+
+def copy_pages(request):
+    if request.method == "POST" and request.FILES.get("pdf_file"):
+        uploaded_file = request.FILES["pdf_file"]
+        pages_input = request.POST.get("pages", "").strip()   # e.g. "1,3"
+        insert_at = request.POST.get("insert_at", "").strip() # e.g. "5"
+
+        pdf_data = uploaded_file.read()
+        with pikepdf.open(io.BytesIO(pdf_data)) as pdf_my:
+            total_pages = len(pdf_my.pages)
+
+            # parse pages to copy
+            pages_to_copy = []
+            for part in pages_input.split(","):
+                if part.isdigit():
+                    page_index = int(part) - 1  # 1-based → 0-based
+                    if 0 <= page_index < total_pages:
+                        pages_to_copy.append(page_index)
+
+            # parse insert position
+            if insert_at.isdigit():
+                insert_index = min(int(insert_at) - 1, total_pages)
+            else:
+                insert_index = total_pages  # append if not provided
+
+            # STEP 1: insert copies
+            for idx in pages_to_copy:
+                copied_page = pikepdf.Page(pdf_my.pages[idx])
+                pdf_my.pages.insert(insert_index, copied_page)
+                insert_index += 1
+
+            # STEP 2: delete originals (important → reverse order to avoid shifting indexes)
+            for idx in sorted(pages_to_copy, reverse=True):
+                del pdf_my.pages[idx]
+
+            # save updated PDF
+            output_buffer = io.BytesIO()
+            pdf_my.save(output_buffer)
+            output_buffer.seek(0)
+
+        response = HttpResponse(output_buffer, content_type="application/pdf")
+        response["Content-Disposition"] = 'inline; filename="copied_and_deleted.pdf"'
+        return response
+
+    return render(request, "copy.html")

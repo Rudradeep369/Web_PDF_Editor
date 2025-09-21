@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Copy Pages{% endblock title %}
+
+{% block body %}
+<div class="container mt-4">
+  <h2 class="mb-3">Copy Pages in PDF</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Upload PDF</label>
+      <input type="file" name="pdf_file" class="form-control" required>
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Pages to Copy (e.g., 1,3,5)</label>
+      <input type="text" name="pages" class="form-control">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">Insert At (page number, default = end)</label>
+      <input type="text" name="insert_at" class="form-control">
+    </div>
+    <button type="submit" class="btn btn-primary">Copy Pages</button>
+  </form>
+</div>
+{% endblock body %}

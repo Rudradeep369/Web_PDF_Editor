@@ -9,4 +9,5 @@ urlpatterns = [
     path("split/", views.split_pdf, name="split_pdf"),
     path('merge/', views.merge_pdf, name='merge_pdf'),
     path('delete/', views.delete_pages, name='delete_pages'),
+    path('copy/', views.copy_pages, name='copy_pages'),
 ]
