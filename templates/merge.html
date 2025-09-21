@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Merge PDFs{% endblock title %}
+
+{% block body %}
+<div class="container mt-4">
+  <h3>Merge PDFs</h3>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label for="pdf_files" class="form-label">Upload PDFs</label>
+      <input type="file" class="form-control" name="pdf_files" multiple required>
+      <div class="form-text">Select two or more PDFs to merge</div>
+    </div>
+    <button type="submit" class="btn btn-success">Merge</button>
+  </form>
+</div>
+{% endblock body %}

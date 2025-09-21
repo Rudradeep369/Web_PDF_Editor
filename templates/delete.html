@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %}Delete Pages{% endblock title %}
+
+
+{% block body %}
+
+<form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label class="form-label">Upload PDF:</label>
+                <input type="file" name="pdf_file" class="form-control" accept="application/pdf" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Pages to delete (e.g. 1,2,5-7):</label>
+                <input type="text" name="pages" class="form-control" placeholder="Enter pages like 1,3,5-7" required>
+            </div>
+
+            <button type="submit" class="btn btn-danger">Delete Pages</button>
+        </form>
+
+{% endblock body %}

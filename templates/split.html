@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block title %}Split PDF{% endblock title %}
+
+{% block body %}
+<form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="pdf_files" class="form-label">Select PDF files:</label>
+                <input class="form-control" type="file" name="pdf_files" id="pdf_files" multiple required onchange="previewFiles()">
+            </div>
+
+            <ul id="fileList" class="list-group mb-3"></ul>
+
+            <button type="submit" class="btn btn-success">Merge PDFs</button>
+        </form>
+    </div>
+
+    <script>
+        function previewFiles() {
+            const fileInput = document.getElementById("pdf_files");
+            const fileList = document.getElementById("fileList");
+            fileList.innerHTML = "";
+
+            for (let i = 0; i < fileInput.files.length; i++) {
+                let li = document.createElement("li");
+                li.classList.add("list-group-item");
+                li.textContent = fileInput.files[i].name;
+                fileList.appendChild(li);
+            }
+        }
+    </script>
+{% endblock body %}
