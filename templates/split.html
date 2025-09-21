@@ -3,31 +3,42 @@
 {% block title %}Split PDF{% endblock title %}
 
 {% block body %}
-<form method="post" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="mb-3">
-                <label for="pdf_files" class="form-label">Select PDF files:</label>
-                <input class="form-control" type="file" name="pdf_files" id="pdf_files" multiple required onchange="previewFiles()">
-            </div>
+<div class="container mt-4">
+    <h3>Split PDF</h3>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
 
-            <ul id="fileList" class="list-group mb-3"></ul>
+        <!-- Upload single file -->
+        <div class="mb-3">
+            <label for="pdf_file" class="form-label">Select PDF file:</label>
+            <input class="form-control" type="file" name="pdf_file" id="pdf_file" required onchange="previewFile()">
+        </div>
 
-            <button type="submit" class="btn btn-success">Merge PDFs</button>
-        </form>
-    </div>
+        <!-- Page selection -->
+        <div class="mb-3">
+            <label for="pages" class="form-label">Pages to extract (e.g., 1,3,5-7):</label>
+            <input class="form-control" type="text" name="pages" id="pages" placeholder="Leave empty for all pages">
+        </div>
 
-    <script>
-        function previewFiles() {
-            const fileInput = document.getElementById("pdf_files");
-            const fileList = document.getElementById("fileList");
-            fileList.innerHTML = "";
+        <!-- Preview selected file -->
+        <ul id="fileList" class="list-group mb-3"></ul>
 
-            for (let i = 0; i < fileInput.files.length; i++) {
-                let li = document.createElement("li");
-                li.classList.add("list-group-item");
-                li.textContent = fileInput.files[i].name;
-                fileList.appendChild(li);
-            }
+        <button type="submit" class="btn btn-success">Split PDF</button>
+    </form>
+</div>
+
+<script>
+    function previewFile() {
+        const fileInput = document.getElementById("pdf_file");
+        const fileList = document.getElementById("fileList");
+        fileList.innerHTML = "";
+
+        if (fileInput.files.length > 0) {
+            let li = document.createElement("li");
+            li.classList.add("list-group-item");
+            li.textContent = fileInput.files[0].name;
+            fileList.appendChild(li);
         }
-    </script>
+    }
+</script>
 {% endblock body %}
