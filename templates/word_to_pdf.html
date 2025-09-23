@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Word → PDF Converter{% endblock title %}
+
+{% block body %}
+<div class="container my-5">
+  <h2 class="mb-4">Convert Word (.docx) to PDF</h2>
+
+  <form method="post" enctype="multipart/form-data" class="row g-3">
+    {% csrf_token %}
+
+    <div class="col-12">
+      <label for="word_file" class="form-label">Select a Word file (.docx)</label>
+      <input class="form-control" type="file" id="word_file" name="word_file" accept=".doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" required onchange="showSelectedFile()">
+      <div id="fileHelp" class="form-text">Supported: .docx (best). If converting .doc older files may work too.</div>
+    </div>
+
+    <div class="col-12">
+      <ul id="selectedFileList" class="list-group" style="display:none;"></ul>
+    </div>
+
+    <div class="col-12">
+      <button type="submit" class="btn btn-success">Convert to PDF</button>
+      <button type="reset" class="btn btn-secondary ms-2" onclick="resetPreview()">Reset</button>
+    </div>
+  </form>
+
+  <hr class="my-4">
+
+  <div class="small text-muted">
+    Tip: For scanned/image-only Word files, OCR may be required for editable text. Server must have the converter available (docx2pdf requires MS Word on Windows/macOS).
+  </div>
+</div>
+
+<script>
+function showSelectedFile() {
+  const input = document.getElementById('word_file');
+  const list = document.getElementById('selectedFileList');
+  list.innerHTML = '';
+  if (!input.files || input.files.length === 0) {
+    list.style.display = 'none';
+    return;
+  }
+  const li = document.createElement('li');
+  li.className = 'list-group-item';
+  li.textContent = input.files[0].name + ' (' + Math.round(input.files[0].size / 1024) + ' KB)';
+  list.appendChild(li);
+  list.style.display = 'block';
+}
+function resetPreview(){
+  const list = document.getElementById('selectedFileList');
+  list.innerHTML = '';
+  list.style.display = 'none';
+}
+</script>
+{% endblock body %}

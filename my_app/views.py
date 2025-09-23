@@ -6,7 +6,13 @@ import tempfile
 import zipfile
 import os
 import io
-from django.core.files.storage import FileSystemStorage
+# from django.core.files.storage import FileSystemStorage
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.lib.colors import HexColor
+from pdf2docx import Converter
+import pytesseract
+from docx2pdf import convert
 
 def index(request):
     return render(request, "index.html")
@@ -257,3 +263,161 @@ def copy_pages(request):
         return response
 
     return render(request, "copy.html")
+
+
+def extract_images(request):
+    if request.method == "POST" and request.FILES.get("pdf_file"):
+        uploaded_file = request.FILES["pdf_file"]
+        pdf_data = uploaded_file.read()
+
+        image_files = []
+
+        with pikepdf.open(io.BytesIO(pdf_data)) as pdf_my:
+            for page_num, page in enumerate(pdf_my.pages, start=1):
+                for image_name, raw_image in page.images.items():
+                    pdf_img = pikepdf.PdfImage(raw_image)
+                    img_buffer = io.BytesIO()
+                    pdf_img.extract_to(stream=img_buffer)  # ✅ no format
+                    img_buffer.seek(0)
+
+                    # fallback extension (most are JPEG)
+                    filename = f"page{page_num}_{image_name}.jpg"
+                    image_files.append((filename, img_buffer.read()))
+
+        if not image_files:
+            return HttpResponse("No images found in this PDF.")
+
+        if len(image_files) > 1:
+            # return ZIP
+            zip_buffer = io.BytesIO()
+            with zipfile.ZipFile(zip_buffer, "w") as zip_file:
+                for filename, content in image_files:
+                    zip_file.writestr(filename, content)
+            zip_buffer.seek(0)
+            response = HttpResponse(zip_buffer, content_type="application/zip")
+            response["Content-Disposition"] = 'attachment; filename="extracted_images.zip"'
+            return response
+        else:
+            # return single image
+            filename, content = image_files[0]
+            response = HttpResponse(content, content_type="image/jpeg")
+            response["Content-Disposition"] = f'attachment; filename="{filename}"'
+            return response
+
+    return render(request, "extract_images.html")
+
+
+def add_text_watermark(request):
+    if request.method == "POST" and request.FILES.get("pdf_file"):
+        uploaded_file = request.FILES["pdf_file"]
+
+        # Get user inputs
+        watermark_text = request.POST.get("watermark_text", "CONFIDENTIAL")
+        font_size = int(request.POST.get("font_size", 40))
+        color = request.POST.get("color", "#000000")   # hex color
+        opacity = float(request.POST.get("opacity", 0.3))  # 0 → transparent, 1 → solid
+        position = request.POST.get("position", "center")  # center, topleft, bottomright
+
+        # Step 1: Generate watermark PDF in memory
+        wm_buffer = io.BytesIO()
+        c = canvas.Canvas(wm_buffer, pagesize=letter)
+        c.setFont("Helvetica-Bold", font_size)
+        c.setFillColor(HexColor(color))
+        c.setFillAlpha(opacity)
+
+        c.saveState()
+
+        if position == "center":
+            c.translate(300, 400)
+            c.rotate(45)
+            c.drawCentredString(0, 0, watermark_text)
+        elif position == "topleft":
+            c.drawString(50, 750, watermark_text)
+        elif position == "bottomright":
+            c.drawRightString(550, 50, watermark_text)
+        else:
+            c.translate(300, 400)
+            c.rotate(45)
+            c.drawCentredString(0, 0, watermark_text)
+
+        c.restoreState()
+        c.save()
+        wm_buffer.seek(0)
+
+        # Step 2: Read PDFs into memory
+        pdf_data = uploaded_file.read()
+        with pikepdf.open(io.BytesIO(pdf_data)) as pdf_my, pikepdf.open(wm_buffer) as pdf_wm:
+            wm_page = pdf_wm.pages[0]
+
+            # Step 3: Apply watermark to every page
+            for page in pdf_my.pages:
+                page.add_overlay(wm_page)
+
+            # Step 4: Save output
+            output_buffer = io.BytesIO()
+            pdf_my.save(output_buffer)
+            output_buffer.seek(0)
+
+        # Step 5: Return watermarked PDF
+        response = HttpResponse(output_buffer, content_type="application/pdf")
+        response["Content-Disposition"] = 'inline; filename="copied_and_deleted.pdf"'
+        return response
+
+    return render(request, "watermark.html")
+
+
+def pdf_to_word(request):
+    if request.method == "POST" and request.FILES.get("pdf_file"):
+        uploaded_file = request.FILES["pdf_file"]
+
+        # Save uploaded file to a temporary location
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".pdf") as temp_pdf:
+            for chunk in uploaded_file.chunks():
+                temp_pdf.write(chunk)
+            temp_pdf_path = temp_pdf.name
+
+        # Create temporary output Word file
+        temp_docx_path = temp_pdf_path.replace(".pdf", ".docx")
+
+        # Convert PDF → Word
+        cv = Converter(temp_pdf_path)
+        cv.convert(temp_docx_path, start=0, end=None)
+        cv.close()
+
+        # Read output and send as response
+        with open(temp_docx_path, "rb") as f:
+            word_data = f.read()
+
+        # Cleanup
+        os.remove(temp_pdf_path)
+        os.remove(temp_docx_path)
+
+        response = HttpResponse(word_data, content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        response["Content-Disposition"] = f'attachment; filename="{uploaded_file.name.replace(".pdf", ".docx")}"'
+        return response
+
+    return render(request, "pdf_to_word.html")
+
+def word_to_pdf(request):
+    if request.method == "POST" and request.FILES.get("word_file"):
+        uploaded_file = request.FILES["word_file"]
+
+        # Save temp Word file
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".docx") as tmp_word:
+            for chunk in uploaded_file.chunks():
+                tmp_word.write(chunk)
+            tmp_word_path = tmp_word.name
+
+        # Output PDF path
+        tmp_pdf_path = tmp_word_path.replace(".docx", ".pdf")
+
+        # Convert Word → PDF
+        convert(tmp_word_path, tmp_pdf_path)
+
+        # Return PDF to user
+        with open(tmp_pdf_path, "rb") as f:
+            response = HttpResponse(f.read(), content_type="application/pdf")
+            response["Content-Disposition"] = "inline; filename=preview.pdf"
+            return response
+
+    return render(request, "word_to_pdf.html")

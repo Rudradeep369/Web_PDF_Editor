@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Extract Images{% endblock title %}
+
+{% block body %}
+<div class="container mt-4">
+  <h2 class="mb-3">Extract Images from PDF</h2>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="mb-3">
+      <label class="form-label">Upload PDF</label>
+      <input type="file" name="pdf_file" class="form-control" required>
+    </div>
+    <button type="submit" class="btn btn-success">Extract</button>
+  </form>
+</div>
+{% endblock body %}
