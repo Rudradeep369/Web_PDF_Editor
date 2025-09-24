@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-zlfas@6gdnm1+xvv_)pgx$mn6d$0tf^n9fi-jh3$hcrii+e+f-'
 
 DEBUG = False  # turn off in production
-ALLOWED_HOSTS = ['web-pdf-editor.onrender.com']  # you can restrict to your Render URL later
+ALLOWED_HOSTS = ALLOWED_HOSTS = ['web-pdf-editor.onrender.com', 'localhost', '127.0.0.1']  # you can restrict to your Render URL later
 
 # Application definition
 INSTALLED_APPS = [
