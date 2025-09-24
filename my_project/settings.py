@@ -1,20 +1,12 @@
 from pathlib import Path
 import os
-from decouple import config  # optional, for environment variables
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Secret key
-SECRET_KEY = config('SECRET_KEY', default='django-insecure-zlfas@6gdnm1+xvv_)pgx$mn6d$0tf^n9fi-jh3$hcrii+e+f-')
+SECRET_KEY = 'django-insecure-zlfas@6gdnm1+xvv_)pgx$mn6d$0tf^n9fi-jh3$hcrii+e+f-'
 
-# Debug mode off for production
-DEBUG = config('DEBUG', default=False, cast=bool)
-
-# Allowed hosts
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS', 
-    default='localhost,127.0.0.1,web-pdf-editor.onrender.com'
-).split(',')
+DEBUG = False  # turn off in production
+ALLOWED_HOSTS = ['web-pdf-editor.onrender.com', 'localhost', '127.0.0.1']  # you can restrict to your Render URL later
 
 # Application definition
 INSTALLED_APPS = [
@@ -57,41 +49,39 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'my_project.wsgi.application'
 
-# Database
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',  # ok for free hosting
+        'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
 ]
 
-# Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
+# Static files (CSS, JS, Images)
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / "staticfiles"
+STATIC_ROOT = BASE_DIR / "staticfiles"  # Render needs this to collect static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-# Media files
+# Media files (for uploaded PDFs)
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = BASE_DIR / 'media'  # store uploaded PDFs temporarily
 
-# Default primary key
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Temporary files for PDFs
+# Temporary file storage for PDFs (used in your views)
 TEMP_DIR = os.path.join(BASE_DIR, 'tmp')
 os.makedirs(TEMP_DIR, exist_ok=True)
