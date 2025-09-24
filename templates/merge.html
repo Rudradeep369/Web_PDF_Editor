@@ -3,16 +3,20 @@
 {% block title %}Merge PDFs{% endblock title %}
 
 {% block body %}
-<div class="container mt-4">
-  <h3>Merge PDFs</h3>
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="pdf_files" class="form-label">Upload PDFs</label>
-      <input type="file" class="form-control" name="pdf_files" multiple required>
-      <div class="form-text">Select two or more PDFs to merge</div>
+<div class="container my-5">
+    <div class="card shadow-sm p-4 mx-auto" style="max-width: 600px;">
+        <h2 class="mb-4 text-center">Merge PDFs</h2>
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="pdf_files" class="form-label">Upload PDFs</label>
+                <input type="file" class="form-control" name="pdf_files" multiple required>
+                <div class="form-text">Select two or more PDFs to merge</div>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-success">Merge PDFs</button>
+            </div>
+        </form>
     </div>
-    <button type="submit" class="btn btn-success">Merge</button>
-  </form>
 </div>
 {% endblock body %}

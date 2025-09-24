@@ -1,18 +1,94 @@
 {% extends "base.html" %}
 
-{% block title %}Rotate{% endblock title %}
-
-{% block nav %}{% endblock nav %}
+{% block title %}Home{% endblock title %}
 
 {% block body %}
+<div class="container my-5">
+    <h2 class="text-center mb-4">Welcome to Master_Editor</h2>
+    <p class="text-center mb-5">Your online PDF & Word editor — all operations in memory, no files stored.</p>
 
+    <div class="row g-4">
+        <!-- PDF Operations -->
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Rotate PDF</h5>
+                    <a href="{% url 'rotate' %}" class="btn btn-primary mt-3">Go</a>
+                </div>
+            </div>
+        </div>
 
-Welcome to PDF Editor
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Split PDF</h5>
+                    <a href="{% url 'split_pdf' %}" class="btn btn-success mt-3">Go</a>
+                </div>
+            </div>
+        </div>
 
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Merge PDFs</h5>
+                    <a href="{% url 'merge_pdf' %}" class="btn btn-warning mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Delete Pages</h5>
+                    <a href="{% url 'delete_pages' %}" class="btn btn-danger mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Copy Pages</h5>
+                    <a href="{% url 'copy_pages' %}" class="btn btn-info mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Extract Images</h5>
+                    <a href="{% url 'extract_images' %}" class="btn btn-success mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Add Watermark</h5>
+                    <a href="{% url 'add_watermark' %}" class="btn btn-primary mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">PDF → Word</h5>
+                    <a href="{% url 'pdf_to_word' %}" class="btn btn-dark mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title">Word → PDF</h5>
+                    <a href="{% url 'word_to_pdf' %}" class="btn btn-dark mt-3">Go</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock body %}
-
-
-
-
-
-
